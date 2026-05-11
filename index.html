@@ -1,0 +1,1524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>QuestLife</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg-from: #0f172a;
+    --bg-via: #1e1040;
+    --bg-to: #0f172a;
+    --card: rgba(30, 27, 60, 0.6);
+    --card-border: rgba(139, 92, 246, 0.15);
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+    --purple: #a855f7;
+    --pink: #ec4899;
+    --yellow: #f59e0b;
+    --orange: #f97316;
+    --blue: #3b82f6;
+    --cyan: #06b6d4;
+    --green: #22c55e;
+    --red: #ef4444;
+    --font-display: 'Cinzel', serif;
+    --font-body: 'Rajdhani', sans-serif;
+  }
+
+  body {
+    background: linear-gradient(135deg, var(--bg-from) 0%, var(--bg-via) 50%, var(--bg-to) 100%);
+    background-attachment: fixed;
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 15px;
+    min-height: 100vh;
+    padding: 16px;
+  }
+
+  /* Stars background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      radial-gradient(1px 1px at 20% 30%, rgba(255,255,255,0.4) 0%, transparent 100%),
+      radial-gradient(1px 1px at 80% 10%, rgba(255,255,255,0.3) 0%, transparent 100%),
+      radial-gradient(1px 1px at 60% 70%, rgba(255,255,255,0.2) 0%, transparent 100%),
+      radial-gradient(1px 1px at 40% 85%, rgba(255,255,255,0.3) 0%, transparent 100%),
+      radial-gradient(1px 1px at 90% 55%, rgba(255,255,255,0.2) 0%, transparent 100%),
+      radial-gradient(1px 1px at 10% 65%, rgba(255,255,255,0.3) 0%, transparent 100%),
+      radial-gradient(1px 1px at 70% 40%, rgba(255,255,255,0.15) 0%, transparent 100%),
+      radial-gradient(1px 1px at 30% 20%, rgba(255,255,255,0.25) 0%, transparent 100%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  #app {
+    max-width: 540px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  /* APP TITLE */
+  .app-title {
+    text-align: center;
+    font-family: var(--font-display);
+    font-size: 28px;
+    font-weight: 900;
+    background: linear-gradient(90deg, var(--purple), var(--pink), var(--purple));
+    background-size: 200%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    animation: shimmer 4s linear infinite;
+    padding: 8px 0 4px;
+  }
+
+  @keyframes shimmer {
+    0% { background-position: 0% 50%; }
+    100% { background-position: 200% 50%; }
+  }
+
+  /* CARD */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: 20px;
+    padding: 20px;
+    backdrop-filter: blur(12px);
+  }
+
+  .card-purple { border-color: rgba(168, 85, 247, 0.25); }
+  .card-yellow { border-color: rgba(245, 158, 11, 0.25); }
+  .card-blue   { border-color: rgba(59, 130, 246, 0.25); }
+  .card-green  { border-color: rgba(34, 197, 94, 0.25); }
+
+  /* PLAYER HEADER */
+  .badges {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+    min-height: 28px;
+  }
+
+  .badge {
+    font-size: 20px;
+    line-height: 1;
+    filter: drop-shadow(0 0 6px rgba(168,85,247,0.6));
+  }
+
+  .player-title {
+    font-family: var(--font-display);
+    font-size: 30px;
+    font-weight: 900;
+    background: linear-gradient(135deg, #c084fc, #f472b6);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: 2px;
+    margin-bottom: 6px;
+  }
+
+  .player-stats {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+  }
+
+  .stat {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 15px;
+    font-weight: 600;
+  }
+
+  .stat .label { color: var(--muted); font-size: 12px; letter-spacing: 1px; text-transform: uppercase; }
+  .stat .value { color: var(--text); font-size: 18px; font-weight: 700; }
+  .stat .icon { font-size: 16px; }
+
+  .xp-bar-wrap {
+    background: rgba(255,255,255,0.08);
+    border-radius: 99px;
+    height: 10px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .xp-bar {
+    height: 100%;
+    border-radius: 99px;
+    background: linear-gradient(90deg, var(--purple), var(--pink));
+    transition: width 0.6s cubic-bezier(.4,0,.2,1);
+    box-shadow: 0 0 8px rgba(168,85,247,0.5);
+  }
+
+  .xp-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 4px;
+    letter-spacing: 0.5px;
+  }
+
+  /* SECTION HEADER */
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+  }
+
+  .section-title {
+    font-family: var(--font-display);
+    font-size: 14px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-weight: 700;
+  }
+
+  .title-purple { color: var(--purple); }
+  .title-yellow { color: var(--yellow); }
+  .title-blue   { color: var(--cyan); }
+  .title-green  { color: var(--green); }
+  .title-white  { color: var(--text); }
+
+  /* BUTTONS */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 7px 14px;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    font-family: var(--font-body);
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: 0.5px;
+    transition: all 0.2s;
+    text-transform: uppercase;
+  }
+
+  .btn:active { transform: scale(0.96); }
+
+  .btn-purple {
+    background: linear-gradient(135deg, rgba(168,85,247,0.25), rgba(236,72,153,0.2));
+    border: 1px solid rgba(168,85,247,0.4);
+    color: #d8b4fe;
+  }
+  .btn-purple:hover { background: linear-gradient(135deg, rgba(168,85,247,0.4), rgba(236,72,153,0.3)); }
+
+  .btn-yellow {
+    background: linear-gradient(135deg, rgba(245,158,11,0.2), rgba(249,115,22,0.15));
+    border: 1px solid rgba(245,158,11,0.35);
+    color: #fcd34d;
+  }
+  .btn-yellow:hover { background: linear-gradient(135deg, rgba(245,158,11,0.35), rgba(249,115,22,0.3)); }
+
+  .btn-green {
+    background: linear-gradient(135deg, rgba(34,197,94,0.25), rgba(16,185,129,0.2));
+    border: 1px solid rgba(34,197,94,0.4);
+    color: #86efac;
+  }
+  .btn-green:hover { background: linear-gradient(135deg, rgba(34,197,94,0.4), rgba(16,185,129,0.35)); }
+  .btn-green:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  .btn-red {
+    background: linear-gradient(135deg, rgba(239,68,68,0.2), rgba(220,38,38,0.15));
+    border: 1px solid rgba(239,68,68,0.35);
+    color: #fca5a5;
+  }
+  .btn-red:hover { background: linear-gradient(135deg, rgba(239,68,68,0.35), rgba(220,38,38,0.3)); }
+
+  .btn-ghost {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: var(--muted);
+  }
+  .btn-ghost:hover { background: rgba(255,255,255,0.1); color: var(--text); }
+
+  .btn-sm { padding: 5px 10px; font-size: 11px; }
+
+  /* LOCKED CARD */
+  .locked-msg {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 20px;
+    color: var(--muted);
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-align: center;
+  }
+
+  .locked-msg .lock-icon { font-size: 32px; filter: grayscale(0.4); }
+
+  /* CHALLENGES */
+  .challenge-group-title {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .challenge-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(255,255,255,0.04);
+    border-radius: 12px;
+    padding: 10px 14px;
+    margin-bottom: 8px;
+    transition: opacity 0.3s;
+    gap: 8px;
+  }
+
+  .challenge-item.done { opacity: 0.45; }
+
+  .challenge-info { flex: 1; min-width: 0; }
+  .challenge-desc { font-size: 14px; font-weight: 600; color: var(--text); }
+  .challenge-xp { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+  .challenge-tick { font-size: 18px; color: var(--green); }
+
+  .challenges-divider {
+    height: 1px;
+    background: rgba(255,255,255,0.07);
+    margin: 14px 0;
+  }
+
+  /* QUESTS */
+  .quest-item {
+    display: flex;
+    flex-direction: column;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 14px;
+    padding: 14px;
+    margin-bottom: 10px;
+    transition: opacity 0.3s, border-color 0.3s;
+  }
+
+  .quest-item.completed {
+    opacity: 0.55;
+    border-color: rgba(34,197,94,0.2);
+  }
+
+  .quest-item.locked-item { opacity: 0.4; }
+
+  .quest-row1 {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+
+  .quest-title-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .quest-name {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text);
+    flex: 1;
+  }
+
+  .quest-row2 {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .quest-badges {
+    display: flex;
+    gap: 5px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .pill {
+    padding: 3px 9px;
+    border-radius: 99px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+
+  /* Skill colours */
+  .pill-fitness     { background: rgba(239,68,68,0.2);   color: #fca5a5; border: 1px solid rgba(239,68,68,0.3); }
+  .pill-learning    { background: rgba(59,130,246,0.2);  color: #93c5fd; border: 1px solid rgba(59,130,246,0.3); }
+  .pill-productivity{ background: rgba(168,85,247,0.2);  color: #d8b4fe; border: 1px solid rgba(168,85,247,0.3); }
+  .pill-creativity  { background: rgba(236,72,153,0.2);  color: #f9a8d4; border: 1px solid rgba(236,72,153,0.3); }
+  .pill-social      { background: rgba(245,158,11,0.2);  color: #fcd34d; border: 1px solid rgba(245,158,11,0.3); }
+  .pill-wellness    { background: rgba(34,197,94,0.2);   color: #86efac; border: 1px solid rgba(34,197,94,0.3); }
+
+  .pill-easy   { background: rgba(34,197,94,0.15);  color: #86efac; border: 1px solid rgba(34,197,94,0.25); }
+  .pill-medium { background: rgba(245,158,11,0.15); color: #fcd34d; border: 1px solid rgba(245,158,11,0.25); }
+  .pill-hard   { background: rgba(239,68,68,0.15);  color: #fca5a5; border: 1px solid rgba(239,68,68,0.25); }
+
+  .quest-meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .quest-meta span { display: flex; align-items: center; gap: 3px; }
+
+  .quest-check { font-size: 20px; color: var(--green); }
+
+  /* ADD QUEST FORM */
+  .form-card {
+    background: rgba(168,85,247,0.08);
+    border: 1px solid rgba(168,85,247,0.25);
+    border-radius: 16px;
+    padding: 18px;
+    margin-bottom: 10px;
+  }
+
+  .form-title {
+    font-family: var(--font-display);
+    font-size: 13px;
+    letter-spacing: 2px;
+    color: var(--purple);
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+
+  .form-row { margin-bottom: 10px; }
+
+  .form-label {
+    display: block;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 5px;
+  }
+
+  .form-input, .form-select {
+    width: 100%;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 10px;
+    padding: 9px 12px;
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 14px;
+    font-weight: 600;
+    outline: none;
+    transition: border-color 0.2s;
+    appearance: none;
+  }
+
+  .form-input:focus, .form-select:focus {
+    border-color: rgba(168,85,247,0.5);
+    box-shadow: 0 0 0 2px rgba(168,85,247,0.1);
+  }
+
+  .form-select option { background: #1e1b4b; color: var(--text); }
+
+  .form-actions { display: flex; gap: 8px; margin-top: 14px; }
+
+  /* SKILLS */
+  .skills-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .skill-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 14px;
+    padding: 12px 14px;
+  }
+
+  .skill-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+
+  .skill-name {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .skill-level {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  .skill-bar-wrap {
+    background: rgba(255,255,255,0.08);
+    border-radius: 99px;
+    height: 6px;
+    overflow: hidden;
+  }
+
+  .skill-bar {
+    height: 100%;
+    border-radius: 99px;
+    transition: width 0.5s cubic-bezier(.4,0,.2,1);
+  }
+
+  .bar-fitness     { background: linear-gradient(90deg, #ef4444, #f97316); box-shadow: 0 0 6px rgba(239,68,68,0.4); }
+  .bar-learning    { background: linear-gradient(90deg, #3b82f6, #06b6d4); box-shadow: 0 0 6px rgba(59,130,246,0.4); }
+  .bar-productivity{ background: linear-gradient(90deg, #a855f7, #8b5cf6); box-shadow: 0 0 6px rgba(168,85,247,0.4); }
+  .bar-creativity  { background: linear-gradient(90deg, #ec4899, #f43f5e); box-shadow: 0 0 6px rgba(236,72,153,0.4); }
+  .bar-social      { background: linear-gradient(90deg, #f59e0b, #f97316); box-shadow: 0 0 6px rgba(245,158,11,0.4); }
+  .bar-wellness    { background: linear-gradient(90deg, #22c55e, #10b981); box-shadow: 0 0 6px rgba(34,197,94,0.4); }
+
+  .name-fitness      { color: #fca5a5; }
+  .name-learning     { color: #93c5fd; }
+  .name-productivity { color: #d8b4fe; }
+  .name-creativity   { color: #f9a8d4; }
+  .name-social       { color: #fcd34d; }
+  .name-wellness     { color: #86efac; }
+
+  /* CHAINS */
+  .chain-item {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 14px;
+    padding: 14px;
+    margin-bottom: 10px;
+  }
+
+  .chain-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+
+  .chain-name {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  .chain-locked {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .chain-bar-wrap {
+    background: rgba(255,255,255,0.08);
+    border-radius: 99px;
+    height: 8px;
+    overflow: hidden;
+    margin-bottom: 8px;
+    position: relative;
+  }
+
+  .chain-bar {
+    height: 100%;
+    border-radius: 99px;
+    background: linear-gradient(90deg, var(--cyan), var(--blue));
+    box-shadow: 0 0 6px rgba(6,182,212,0.4);
+    transition: width 0.5s cubic-bezier(.4,0,.2,1);
+  }
+
+  .chain-milestones {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .milestone {
+    font-size: 10px;
+    color: var(--muted);
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+  }
+
+  .milestone.reached { color: var(--cyan); }
+  .milestone-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.15);
+  }
+  .milestone.reached .milestone-dot { background: var(--cyan); box-shadow: 0 0 5px var(--cyan); }
+
+  .chain-progress-text {
+    font-size: 11px;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+
+  /* OVERLAY */
+  .overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.85);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    backdrop-filter: blur(8px);
+    animation: fadeIn 0.3s ease;
+  }
+
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+  .overlay-box {
+    background: linear-gradient(135deg, rgba(30,27,96,0.95), rgba(88,28,135,0.9));
+    border: 1px solid rgba(168,85,247,0.5);
+    border-radius: 24px;
+    padding: 40px 32px;
+    text-align: center;
+    max-width: 320px;
+    width: 90%;
+    box-shadow: 0 0 60px rgba(168,85,247,0.3);
+    animation: popIn 0.4s cubic-bezier(.175,.885,.32,1.275);
+  }
+
+  @keyframes popIn {
+    from { transform: scale(0.7); opacity: 0; }
+    to   { transform: scale(1);   opacity: 1; }
+  }
+
+  .overlay-box.skillup {
+    background: linear-gradient(135deg, rgba(6,60,90,0.95), rgba(8,47,73,0.9));
+    border-color: rgba(6,182,212,0.5);
+    box-shadow: 0 0 60px rgba(6,182,212,0.3);
+  }
+
+  .overlay-emoji {
+    font-size: 64px;
+    margin-bottom: 12px;
+    animation: bounce 0.6s ease infinite alternate;
+    display: block;
+  }
+
+  @keyframes bounce {
+    from { transform: translateY(0); }
+    to   { transform: translateY(-10px); }
+  }
+
+  .overlay-title {
+    font-family: var(--font-display);
+    font-size: 13px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+
+  .overlay-main {
+    font-family: var(--font-display);
+    font-size: 32px;
+    font-weight: 900;
+    background: linear-gradient(135deg, #c084fc, #f472b6);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 8px;
+    animation: pulse 1s ease infinite alternate;
+  }
+
+  .overlay-main.cyan-grad {
+    background: linear-gradient(135deg, #22d3ee, #3b82f6);
+    -webkit-background-clip: text;
+    background-clip: text;
+  }
+
+  @keyframes pulse {
+    from { filter: brightness(1); }
+    to   { filter: brightness(1.3); }
+  }
+
+  .overlay-sub {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--muted);
+    margin-bottom: 24px;
+  }
+
+  /* TOAST */
+  #toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: rgba(30,27,60,0.95);
+    border: 1px solid rgba(168,85,247,0.4);
+    border-radius: 12px;
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+    z-index: 900;
+    transition: transform 0.35s cubic-bezier(.4,0,.2,1), opacity 0.35s;
+    opacity: 0;
+    white-space: nowrap;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.4);
+    backdrop-filter: blur(8px);
+  }
+
+  #toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+
+  /* UTIL */
+  .hidden { display: none !important; }
+  .mt-4 { margin-top: 4px; }
+  .mt-8 { margin-top: 8px; }
+  .mt-12 { margin-top: 12px; }
+
+  .no-quests {
+    text-align: center;
+    color: var(--muted);
+    font-size: 13px;
+    padding: 20px;
+    font-style: italic;
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(168,85,247,0.3); border-radius: 2px; }
+</style>
+</head>
+<body>
+<div id="app">
+  <h1 class="app-title">QuestLife</h1>
+
+  <!-- PLAYER HEADER -->
+  <div class="card card-purple" id="player-card">
+    <div class="badges" id="badges-row"></div>
+    <div class="player-title" id="player-title">Novice</div>
+    <div class="player-stats">
+      <div class="stat">
+        <span class="label">Level</span>
+        <span class="value" id="player-level">1</span>
+      </div>
+      <div class="stat">
+        <span class="icon">🔥</span>
+        <span class="value" id="player-streak">0</span>
+        <span class="label">streak</span>
+      </div>
+      <div class="stat">
+        <span class="icon">⭐</span>
+        <span class="value" id="player-totalxp">0</span>
+        <span class="label">xp total</span>
+      </div>
+    </div>
+    <div class="xp-bar-wrap">
+      <div class="xp-bar" id="xp-bar" style="width:0%"></div>
+    </div>
+    <div class="xp-label">
+      <span id="xp-current">0 XP</span>
+      <span id="xp-needed">100 XP to next level</span>
+    </div>
+  </div>
+
+  <!-- CHALLENGES CARD -->
+  <div class="card card-yellow" id="challenges-card">
+    <div class="section-header">
+      <span class="section-title title-yellow">Challenges</span>
+    </div>
+    <div id="challenges-locked" class="locked-msg hidden">
+      <span class="lock-icon">🔒</span>
+      <span>Reach level 5 to unlock challenges</span>
+    </div>
+    <div id="challenges-content">
+      <div class="challenge-group-title" style="color:var(--yellow)">Daily</div>
+      <div id="daily-challenges-list"></div>
+      <div class="challenges-divider"></div>
+      <div class="challenge-group-title" style="color:var(--purple)">Weekly</div>
+      <div id="weekly-challenges-list"></div>
+    </div>
+  </div>
+
+  <!-- QUESTS CARD -->
+  <div class="card card-green">
+    <div class="section-header">
+      <span class="section-title title-green">Quests</span>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-red btn-sm hidden" id="undo-btn" onclick="undoQuest()">↩ Undo</button>
+        <button class="btn btn-purple btn-sm" onclick="toggleAddQuest()">+ Add Quest</button>
+      </div>
+    </div>
+    <div id="add-quest-form" class="form-card hidden">
+      <div class="form-title">New Quest</div>
+      <div class="form-row">
+        <label class="form-label">Quest Title</label>
+        <input type="text" class="form-input" id="new-quest-title" placeholder="e.g. Morning run..." />
+      </div>
+      <div class="form-row">
+        <label class="form-label">Skill Category</label>
+        <select class="form-select" id="new-quest-skill">
+          <option value="fitness">Fitness</option>
+          <option value="learning">Learning</option>
+          <option value="productivity">Productivity</option>
+          <option value="creativity">Creativity</option>
+          <option value="social">Social</option>
+          <option value="wellness">Wellness</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <label class="form-label">Difficulty</label>
+        <select class="form-select" id="new-quest-difficulty">
+          <option value="easy">Easy (+20 XP)</option>
+          <option value="medium">Medium (+50 XP)</option>
+          <option value="hard">Hard (+100 XP)</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <label class="form-label">Frequency</label>
+        <select class="form-select" id="new-quest-frequency">
+          <option value="daily">Daily</option>
+          <option value="weekly">Weekly</option>
+        </select>
+      </div>
+      <div class="form-actions">
+        <button class="btn btn-green" onclick="submitNewQuest()">Add Quest</button>
+        <button class="btn btn-ghost" onclick="toggleAddQuest()">Cancel</button>
+      </div>
+    </div>
+    <div id="quests-list"></div>
+  </div>
+
+  <!-- SKILLS CARD -->
+  <div class="card card-blue">
+    <div class="section-header">
+      <span class="section-title title-blue">Skills</span>
+    </div>
+    <div class="skills-grid" id="skills-grid"></div>
+  </div>
+
+  <!-- QUEST CHAINS CARD -->
+  <div class="card" style="border-color:rgba(6,182,212,0.2)">
+    <div class="section-header">
+      <span class="section-title" style="color:var(--cyan)">Quest Chains</span>
+      <button class="btn btn-ghost btn-sm" id="chains-toggle-btn" onclick="toggleChains()">View Chains</button>
+    </div>
+    <div id="chains-content" class="hidden">
+      <div id="chains-list"></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- LEVEL UP OVERLAY -->
+<div class="overlay hidden" id="levelup-overlay" onclick="dismissLevelUp()">
+  <div class="overlay-box">
+    <span class="overlay-emoji">⚔️</span>
+    <div class="overlay-title">Level Up!</div>
+    <div class="overlay-main" id="levelup-title">Apprentice</div>
+    <div class="overlay-sub" id="levelup-sub">You reached Level 3</div>
+    <button class="btn btn-purple" onclick="dismissLevelUp()">Continue</button>
+  </div>
+</div>
+
+<!-- SKILL UP OVERLAY -->
+<div class="overlay hidden" id="skillup-overlay" onclick="dismissSkillUp()">
+  <div class="overlay-box skillup">
+    <span class="overlay-emoji">✨</span>
+    <div class="overlay-title">Skill Level Up!</div>
+    <div class="overlay-main cyan-grad" id="skillup-title">Fitness</div>
+    <div class="overlay-sub" id="skillup-sub">Reached Level 2 — Keep going!</div>
+    <button class="btn" style="background:rgba(6,182,212,0.2);border:1px solid rgba(6,182,212,0.4);color:#67e8f9" onclick="dismissSkillUp()">Keep Going</button>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<script>
+// ===========================
+//   CONSTANTS & CONFIG
+// ===========================
+
+const LEVEL_TITLES = [
+  { level: 1,  title: 'Novice' },
+  { level: 3,  title: 'Apprentice' },
+  { level: 5,  title: 'Adventurer' },
+  { level: 7,  title: 'Warrior' },
+  { level: 10, title: 'Hero' },
+  { level: 15, title: 'Champion' },
+  { level: 20, title: 'Legend' },
+];
+
+const DIFFICULTY_CONFIG = {
+  easy:   { xp: 20,  minLevel: 1 },
+  medium: { xp: 50,  minLevel: 3 },
+  hard:   { xp: 100, minLevel: 7 },
+};
+
+const SKILL_COLORS = {
+  fitness: 'fitness', learning: 'learning', productivity: 'productivity',
+  creativity: 'creativity', social: 'social', wellness: 'wellness'
+};
+
+const DEFAULT_QUESTS = [
+  { id: 'q1', title: 'Drink 2L water',                    skill: 'wellness',    difficulty: 'easy',   frequency: 'daily', completedToday: false, completedAt: null, totalCompleted: 0 },
+  { id: 'q2', title: 'Gym workout / BJJ',                 skill: 'fitness',     difficulty: 'hard',   frequency: 'daily', completedToday: false, completedAt: null, totalCompleted: 0 },
+  { id: 'q3', title: 'Read a chapter & write key points', skill: 'learning',    difficulty: 'medium', frequency: 'daily', completedToday: false, completedAt: null, totalCompleted: 0 },
+  { id: 'q4', title: 'Have all supplements',              skill: 'wellness',    difficulty: 'easy',   frequency: 'daily', completedToday: false, completedAt: null, totalCompleted: 0 },
+  { id: 'q5', title: "Plan tomorrow's tasks",             skill: 'productivity',difficulty: 'easy',   frequency: 'daily', completedToday: false, completedAt: null, totalCompleted: 0 },
+];
+
+const DEFAULT_PLAYER = {
+  level: 1, xp: 0, totalXP: 0, streak: 0, lastActive: null,
+};
+
+const DEFAULT_SKILLS = {
+  fitness:      { level: 1, progress: 0 },
+  learning:     { level: 1, progress: 0 },
+  productivity: { level: 1, progress: 0 },
+  creativity:   { level: 1, progress: 0 },
+  social:       { level: 1, progress: 0 },
+  wellness:     { level: 1, progress: 0 },
+};
+
+const DEFAULT_CHAINS = [
+  { id: 'hydration',  name: 'Hydration Hero',  icon: '💧', minLevel: 1, milestones: [7,30,100,365], progress: 0, questId: 'q1' },
+  { id: 'planner',    name: 'Master Planner',  icon: '📋', minLevel: 1, milestones: [7,30,100,365], progress: 0, questId: 'q5' },
+  { id: 'health',     name: 'Health Optimizer',icon: '💊', minLevel: 1, milestones: [7,30,100,365], progress: 0, questId: 'q4' },
+  { id: 'bookworm',   name: 'Bookworm',        icon: '📚', minLevel: 3, milestones: [10,50,150,365],progress: 0, questId: 'q3' },
+  { id: 'ironbody',   name: 'Iron Body',       icon: '🏋️', minLevel: 7, milestones: [10,50,150,365],progress: 0, questId: 'q2' },
+];
+
+const ACHIEVEMENTS_DEF = [
+  { id: 'rising_hero',   emoji: '📚', label: 'Rising Hero',   desc: 'Reach level 5' },
+  { id: 'week_warrior',  emoji: '🔥', label: 'Week Warrior',  desc: 'Reach a 7-day streak' },
+  { id: 'quest_master',  emoji: '⚔️', label: 'Quest Master',  desc: 'Complete any quest 10 times' },
+  { id: 'xp_collector',  emoji: '💎', label: 'XP Collector',  desc: 'Accumulate 1000 total XP' },
+  { id: 'veteran',       emoji: '👑', label: 'Veteran',       desc: 'Reach level 10' },
+];
+
+const DAILY_CHALLENGES_DEF = [
+  { id: 'dc1', desc: 'Complete 3 quests today',   xp: 75,  auto: true,  key: 'quests3' },
+  { id: 'dc2', desc: 'Complete all daily quests', xp: 100, auto: true,  key: 'allquests' },
+  { id: 'dc3', desc: 'Text or call a friend/family', xp: 50, auto: false, key: 'social' },
+];
+
+const WEEKLY_CHALLENGES_DEF = [
+  { id: 'wc1', desc: 'Maintain a 7-day streak',     xp: 400, auto: true,  key: 'streak7' },
+  { id: 'wc2', desc: 'Complete 20 quests this week',xp: 300, auto: true,  key: 'quests20' },
+  { id: 'wc3', desc: 'Do a weekly reflection',       xp: 200, auto: false, key: 'reflection' },
+];
+
+// ===========================
+//   STATE
+// ===========================
+
+let player, quests, skills, achievements, questChains, recentCompletions;
+let dailyChallenges, weeklyChallenges;
+let showChains = false;
+let showAddQuest = false;
+let levelUpQueue = [];
+let skillUpQueue = [];
+
+// ===========================
+//   PERSISTENCE
+// ===========================
+
+function save() {
+  localStorage.setItem('ql_player',    JSON.stringify(player));
+  localStorage.setItem('ql_quests',    JSON.stringify(quests));
+  localStorage.setItem('ql_skills',    JSON.stringify(skills));
+  localStorage.setItem('ql_achievements', JSON.stringify(achievements));
+  localStorage.setItem('ql_chains',    JSON.stringify(questChains));
+  localStorage.setItem('ql_recent',    JSON.stringify(recentCompletions));
+  localStorage.setItem('ql_daily_challenges',  JSON.stringify(dailyChallenges));
+  localStorage.setItem('ql_weekly_challenges', JSON.stringify(weeklyChallenges));
+}
+
+function load() {
+  player          = JSON.parse(localStorage.getItem('ql_player'))    || { ...DEFAULT_PLAYER };
+  quests          = JSON.parse(localStorage.getItem('ql_quests'))    || DEFAULT_QUESTS.map(q => ({...q}));
+  skills          = JSON.parse(localStorage.getItem('ql_skills'))    || JSON.parse(JSON.stringify(DEFAULT_SKILLS));
+  achievements    = JSON.parse(localStorage.getItem('ql_achievements')) || [];
+  questChains     = JSON.parse(localStorage.getItem('ql_chains'))    || DEFAULT_CHAINS.map(c => ({...c}));
+  recentCompletions = JSON.parse(localStorage.getItem('ql_recent')) || [];
+
+  const savedDaily  = JSON.parse(localStorage.getItem('ql_daily_challenges'));
+  const savedWeekly = JSON.parse(localStorage.getItem('ql_weekly_challenges'));
+  dailyChallenges  = savedDaily  || DAILY_CHALLENGES_DEF.map(c => ({...c, done: false}));
+  weeklyChallenges = savedWeekly || WEEKLY_CHALLENGES_DEF.map(c => ({...c, done: false}));
+}
+
+// ===========================
+//   HELPERS
+// ===========================
+
+function today() {
+  return new Date().toDateString();
+}
+
+function xpForLevel(level) {
+  return Math.round(100 * Math.pow(1.5, level - 1));
+}
+
+function skillXPForLevel(level) {
+  return Math.floor(5 * Math.pow(1.5, level - 1));
+}
+
+function getTitle(level) {
+  let title = LEVEL_TITLES[0].title;
+  for (const t of LEVEL_TITLES) {
+    if (level >= t.level) title = t.title;
+  }
+  return title;
+}
+
+function getQuestsDoneToday() {
+  return quests.filter(q => q.completedToday).length;
+}
+
+function getQuestsThisWeek() {
+  const weekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+  return recentCompletions.filter(r => r.ts > weekAgo).length;
+}
+
+function showToast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2200);
+}
+
+// ===========================
+//   STREAK
+// ===========================
+
+function updateStreak() {
+  const t = today();
+  if (player.lastActive === t) return;
+  if (player.lastActive) {
+    const last = new Date(player.lastActive);
+    const now  = new Date(t);
+    const diff = Math.round((now - last) / (1000 * 60 * 60 * 24));
+    if (diff === 1) {
+      player.streak += 1;
+    } else if (diff > 1) {
+      player.streak = 1;
+    }
+  } else {
+    player.streak = 1;
+  }
+  player.lastActive = t;
+}
+
+// ===========================
+//   DAILY RESET
+// ===========================
+
+function checkDailyReset() {
+  quests.forEach(q => {
+    if (q.completedAt) {
+      const d = new Date(q.completedAt).toDateString();
+      if (d !== today()) {
+        q.completedToday = false;
+        q.completedAt = null;
+      }
+    }
+  });
+
+  const storedDay = localStorage.getItem('ql_last_day');
+  if (storedDay !== today()) {
+    localStorage.setItem('ql_last_day', today());
+    dailyChallenges = DAILY_CHALLENGES_DEF.map(c => ({...c, done: false}));
+    save();
+  }
+}
+
+// ===========================
+//   COMPLETE QUEST
+// ===========================
+
+function completeQuest(id) {
+  const quest = quests.find(q => q.id === id);
+  if (!quest || quest.completedToday) return;
+  const cfg = DIFFICULTY_CONFIG[quest.difficulty];
+  if (player.level < cfg.minLevel) return;
+
+  quest.completedToday = true;
+  quest.completedAt = Date.now();
+  quest.totalCompleted += 1;
+
+  // XP
+  const xpGained = cfg.xp;
+  player.xp += xpGained;
+  player.totalXP += xpGained;
+
+  // Streak
+  updateStreak();
+
+  // Recent completions
+  recentCompletions.unshift({ questId: id, xp: xpGained, skill: quest.skill, ts: Date.now(),
+    snapshot: { xp: player.xp - xpGained, totalXP: player.totalXP - xpGained,
+                level: player.level, streak: player.streak,
+                skill: JSON.parse(JSON.stringify(skills[quest.skill])),
+                questCompleted: quest.totalCompleted - 1 }
+  });
+  if (recentCompletions.length > 10) recentCompletions.pop();
+
+  // Chain progress
+  questChains.forEach(chain => {
+    if (chain.questId === id && player.level >= chain.minLevel) {
+      chain.progress += 1;
+    }
+  });
+
+  // Level up check
+  checkLevelUp();
+
+  // Skill progress
+  grantSkillProgress(quest.skill);
+
+  // Achievements
+  checkAchievements();
+
+  // Auto challenges
+  checkAutoChallenges();
+
+  save();
+  render();
+  showToast(`+${xpGained} XP — ${quest.title}`);
+}
+
+function checkLevelUp() {
+  let levelled = false;
+  while (player.xp >= xpForLevel(player.level)) {
+    player.xp -= xpForLevel(player.level);
+    player.level += 1;
+    levelled = true;
+    levelUpQueue.push({ level: player.level, title: getTitle(player.level) });
+  }
+  if (levelled) {
+    showNextLevelUp();
+  }
+}
+
+function grantSkillProgress(skillName) {
+  const skill = skills[skillName];
+  skill.progress += 1;
+  const needed = skillXPForLevel(skill.level);
+  if (skill.progress >= needed) {
+    skill.progress -= needed;
+    skill.level += 1;
+    skillUpQueue.push({ skill: skillName, level: skill.level });
+    showNextSkillUp();
+  }
+}
+
+// ===========================
+//   UNDO
+// ===========================
+
+function undoQuest() {
+  if (!recentCompletions.length) return;
+  const recent = recentCompletions.shift();
+  const quest = quests.find(q => q.id === recent.questId);
+  if (quest) {
+    quest.completedToday = false;
+    quest.completedAt = null;
+    quest.totalCompleted = Math.max(0, quest.totalCompleted - 1);
+  }
+  player.xp      = recent.snapshot.xp;
+  player.totalXP = recent.snapshot.totalXP;
+  player.level   = recent.snapshot.level;
+  player.streak  = recent.snapshot.streak;
+  skills[recent.skill] = recent.snapshot.skill;
+
+  questChains.forEach(chain => {
+    if (chain.questId === recent.questId && player.level >= chain.minLevel) {
+      chain.progress = Math.max(0, chain.progress - 1);
+    }
+  });
+
+  checkAchievements();
+  save();
+  render();
+  showToast('Quest completion undone');
+}
+
+// ===========================
+//   ADD QUEST
+// ===========================
+
+function toggleAddQuest() {
+  showAddQuest = !showAddQuest;
+  document.getElementById('add-quest-form').classList.toggle('hidden', !showAddQuest);
+  if (showAddQuest) document.getElementById('new-quest-title').focus();
+}
+
+function submitNewQuest() {
+  const title = document.getElementById('new-quest-title').value.trim();
+  if (!title) { showToast('Please enter a quest title'); return; }
+  const skill      = document.getElementById('new-quest-skill').value;
+  const difficulty = document.getElementById('new-quest-difficulty').value;
+  const frequency  = document.getElementById('new-quest-frequency').value;
+
+  const id = 'q_' + Date.now();
+  quests.push({ id, title, skill, difficulty, frequency, completedToday: false, completedAt: null, totalCompleted: 0 });
+
+  document.getElementById('new-quest-title').value = '';
+  showAddQuest = false;
+  document.getElementById('add-quest-form').classList.add('hidden');
+
+  save();
+  render();
+  showToast('Quest added!');
+}
+
+// ===========================
+//   CHALLENGES
+// ===========================
+
+function completManualChallenge(type, id) {
+  const list = type === 'daily' ? dailyChallenges : weeklyChallenges;
+  const ch = list.find(c => c.id === id);
+  if (!ch || ch.done) return;
+  ch.done = true;
+  player.xp += ch.xp;
+  player.totalXP += ch.xp;
+  checkLevelUp();
+  checkAchievements();
+  save();
+  render();
+  showToast(`Challenge complete! +${ch.xp} XP`);
+}
+
+function checkAutoChallenges() {
+  if (player.level < 5) return;
+  const doneToday = getQuestsDoneToday();
+  const doneWeek  = getQuestsThisWeek();
+
+  // Daily auto
+  dailyChallenges.forEach(ch => {
+    if (ch.done || !ch.auto) return;
+    if (ch.key === 'quests3'   && doneToday >= 3) awardChallenge('daily', ch.id);
+    if (ch.key === 'allquests' && doneToday >= quests.filter(q=>q.frequency==='daily').length && quests.filter(q=>q.frequency==='daily').length > 0) awardChallenge('daily', ch.id);
+  });
+
+  // Weekly auto
+  weeklyChallenges.forEach(ch => {
+    if (ch.done || !ch.auto) return;
+    if (ch.key === 'streak7'  && player.streak >= 7) awardChallenge('weekly', ch.id);
+    if (ch.key === 'quests20' && doneWeek >= 20)     awardChallenge('weekly', ch.id);
+  });
+}
+
+function awardChallenge(type, id) {
+  const list = type === 'daily' ? dailyChallenges : weeklyChallenges;
+  const ch = list.find(c => c.id === id);
+  if (!ch || ch.done) return;
+  ch.done = true;
+  player.xp += ch.xp;
+  player.totalXP += ch.xp;
+  checkLevelUp();
+}
+
+// ===========================
+//   ACHIEVEMENTS
+// ===========================
+
+function checkAchievements() {
+  const grant = (id) => { if (!achievements.includes(id)) achievements.push(id); };
+
+  if (player.level >= 5)  grant('rising_hero');
+  if (player.streak >= 7) grant('week_warrior');
+  if (quests.some(q => q.totalCompleted >= 10)) grant('quest_master');
+  if (player.totalXP >= 1000) grant('xp_collector');
+  if (player.level >= 10) grant('veteran');
+}
+
+// ===========================
+//   TOGGLES
+// ===========================
+
+function toggleChains() {
+  showChains = !showChains;
+  document.getElementById('chains-content').classList.toggle('hidden', !showChains);
+  document.getElementById('chains-toggle-btn').textContent = showChains ? 'Hide Chains' : 'View Chains';
+}
+
+// ===========================
+//   OVERLAYS
+// ===========================
+
+let levelUpShowing = false;
+let skillUpShowing = false;
+
+function showNextLevelUp() {
+  if (levelUpShowing || levelUpQueue.length === 0) return;
+  const data = levelUpQueue.shift();
+  levelUpShowing = true;
+  document.getElementById('levelup-title').textContent = data.title;
+  document.getElementById('levelup-sub').textContent = `You reached Level ${data.level}`;
+  document.getElementById('levelup-overlay').classList.remove('hidden');
+}
+
+function dismissLevelUp() {
+  document.getElementById('levelup-overlay').classList.add('hidden');
+  levelUpShowing = false;
+  if (levelUpQueue.length > 0) setTimeout(showNextLevelUp, 400);
+  else if (skillUpQueue.length > 0) setTimeout(showNextSkillUp, 400);
+}
+
+function showNextSkillUp() {
+  if (skillUpShowing || skillUpQueue.length === 0) return;
+  const data = skillUpQueue.shift();
+  skillUpShowing = true;
+  const name = data.skill.charAt(0).toUpperCase() + data.skill.slice(1);
+  document.getElementById('skillup-title').textContent = name;
+  document.getElementById('skillup-sub').textContent = `Reached Level ${data.level} — Keep going!`;
+  document.getElementById('skillup-overlay').classList.remove('hidden');
+}
+
+function dismissSkillUp() {
+  document.getElementById('skillup-overlay').classList.add('hidden');
+  skillUpShowing = false;
+  if (skillUpQueue.length > 0) setTimeout(showNextSkillUp, 400);
+}
+
+// ===========================
+//   RENDER
+// ===========================
+
+function render() {
+  renderPlayer();
+  renderChallenges();
+  renderQuests();
+  renderSkills();
+  renderChains();
+}
+
+function renderPlayer() {
+  const needed = xpForLevel(player.level);
+  const pct    = Math.min(100, (player.xp / needed) * 100);
+
+  document.getElementById('player-title').textContent = getTitle(player.level);
+  document.getElementById('player-level').textContent = player.level;
+  document.getElementById('player-streak').textContent = player.streak;
+  document.getElementById('player-totalxp').textContent = player.totalXP;
+  document.getElementById('xp-bar').style.width = pct + '%';
+  document.getElementById('xp-current').textContent = player.xp + ' XP';
+  document.getElementById('xp-needed').textContent = needed + ' XP to next level';
+
+  // Badges
+  const row = document.getElementById('badges-row');
+  row.innerHTML = '';
+  achievements.forEach(id => {
+    const def = ACHIEVEMENTS_DEF.find(a => a.id === id);
+    if (def) {
+      const span = document.createElement('span');
+      span.className = 'badge';
+      span.title = def.label + ': ' + def.desc;
+      span.textContent = def.emoji;
+      row.appendChild(span);
+    }
+  });
+}
+
+function renderChallenges() {
+  const locked  = document.getElementById('challenges-locked');
+  const content = document.getElementById('challenges-content');
+  if (player.level < 5) {
+    locked.classList.remove('hidden');
+    content.classList.add('hidden');
+    return;
+  }
+  locked.classList.add('hidden');
+  content.classList.remove('hidden');
+
+  renderChallengeList('daily-challenges-list', dailyChallenges, 'daily');
+  renderChallengeList('weekly-challenges-list', weeklyChallenges, 'weekly');
+}
+
+function renderChallengeList(containerId, list, type) {
+  const container = document.getElementById(containerId);
+  container.innerHTML = '';
+  list.forEach(ch => {
+    const div = document.createElement('div');
+    div.className = 'challenge-item' + (ch.done ? ' done' : '');
+    div.innerHTML = `
+      <div class="challenge-info">
+        <div class="challenge-desc">${ch.desc}</div>
+        <div class="challenge-xp">+${ch.xp} XP${ch.auto ? ' · Auto-tracked' : ''}</div>
+      </div>
+      ${ch.done
+        ? `<span class="challenge-tick">✓</span>`
+        : (!ch.auto ? `<button class="btn btn-green btn-sm" onclick="completManualChallenge('${type}','${ch.id}')">Complete</button>` : '')
+      }
+    `;
+    container.appendChild(div);
+  });
+}
+
+function renderQuests() {
+  const container = document.getElementById('quests-list');
+  container.innerHTML = '';
+
+  // Undo button
+  document.getElementById('undo-btn').classList.toggle('hidden', recentCompletions.length === 0);
+
+  if (quests.length === 0) {
+    container.innerHTML = '<div class="no-quests">No quests yet. Add one above!</div>';
+    return;
+  }
+
+  quests.forEach(quest => {
+    const cfg     = DIFFICULTY_CONFIG[quest.difficulty];
+    const locked  = player.level < cfg.minLevel;
+    const div     = document.createElement('div');
+    div.className = 'quest-item' + (quest.completedToday ? ' completed' : '') + (locked ? ' locked-item' : '');
+
+    div.innerHTML = `
+      <div class="quest-row1">
+        <div class="quest-title-row">
+          ${locked ? '<span style="font-size:14px">🔒</span>' : ''}
+          ${quest.completedToday ? '<span class="quest-check">✓</span>' : ''}
+          <span class="quest-name">${quest.title}</span>
+        </div>
+        <button class="btn btn-green btn-sm"
+          ${quest.completedToday || locked ? 'disabled' : ''}
+          onclick="completeQuest('${quest.id}')">
+          ${quest.completedToday ? 'Done' : 'Complete'}
+        </button>
+      </div>
+      <div class="quest-row2">
+        <div class="quest-badges">
+          <span class="pill pill-${quest.skill}">${quest.skill}</span>
+          <span class="pill pill-${quest.difficulty}">${quest.difficulty}</span>
+        </div>
+        <div class="quest-meta">
+          <span>⭐ ${cfg.xp} XP</span>
+          <span>🏆 ×${quest.totalCompleted}</span>
+          ${locked ? `<span style="color:var(--muted);font-size:11px">Lv.${cfg.minLevel} req</span>` : ''}
+        </div>
+      </div>
+    `;
+    container.appendChild(div);
+  });
+}
+
+function renderSkills() {
+  const grid = document.getElementById('skills-grid');
+  grid.innerHTML = '';
+  Object.entries(skills).forEach(([name, skill]) => {
+    const needed = skillXPForLevel(skill.level);
+    const pct    = Math.min(100, (skill.progress / needed) * 100);
+    const div    = document.createElement('div');
+    div.className = 'skill-card';
+    div.innerHTML = `
+      <div class="skill-header">
+        <span class="skill-name name-${name}">${name}</span>
+        <span class="skill-level">${skill.level}</span>
+      </div>
+      <div class="skill-bar-wrap">
+        <div class="skill-bar bar-${name}" style="width:${pct}%"></div>
+      </div>
+    `;
+    grid.appendChild(div);
+  });
+}
+
+function renderChains() {
+  const container = document.getElementById('chains-list');
+  container.innerHTML = '';
+  questChains.forEach(chain => {
+    const locked = player.level < chain.minLevel;
+    const div    = document.createElement('div');
+    div.className = 'chain-item';
+
+    if (locked) {
+      div.innerHTML = `
+        <div class="chain-header">
+          <span class="chain-name">${chain.icon} ${chain.name}</span>
+          <span class="chain-locked">🔒 Level ${chain.minLevel} required</span>
+        </div>
+      `;
+    } else {
+      const maxMilestone = chain.milestones[chain.milestones.length - 1];
+      const pct = Math.min(100, (chain.progress / maxMilestone) * 100);
+      const milestonesHtml = chain.milestones.map(m => {
+        const reached = chain.progress >= m;
+        return `<div class="milestone ${reached ? 'reached' : ''}">
+          <div class="milestone-dot"></div>
+          <span>${m}</span>
+        </div>`;
+      }).join('');
+
+      div.innerHTML = `
+        <div class="chain-header">
+          <span class="chain-name">${chain.icon} ${chain.name}</span>
+          <span style="font-size:12px;color:var(--cyan)">${chain.progress} / ${maxMilestone}</span>
+        </div>
+        <div class="chain-progress-text">${chain.progress} completions</div>
+        <div class="chain-bar-wrap">
+          <div class="chain-bar" style="width:${pct}%"></div>
+        </div>
+        <div class="chain-milestones">${milestonesHtml}</div>
+      `;
+    }
+    container.appendChild(div);
+  });
+}
+
+// ===========================
+//   INIT
+// ===========================
+
+function init() {
+  load();
+  checkDailyReset();
+  render();
+
+  // Periodic daily reset check
+  setInterval(() => {
+    checkDailyReset();
+    render();
+  }, 60 * 1000);
+}
+
+init();
+</script>
+</body>
+</html>
