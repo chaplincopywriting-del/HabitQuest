@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QuestLife - Self Improvement RPG</title>
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body>
+  <div id="root"></div>
+  
+  <script type="text/babel">
+    const { useState, useEffect } = React;
+
+    // Lucide icons as SVG components
+    const Trophy = () => <svg className="lucide lucide-trophy" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>;
+    const Target = () => <svg className="lucide lucide-target" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>;
+    const Plus = () => <svg className="lucide lucide-plus" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>;
+    const Check = () => <svg className="lucide lucide-check" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5"/></svg>;
+    const Trash2 = () => <svg className="lucide lucide-trash-2" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>;
+    const Flame = () => <svg className="lucide lucide-flame" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>;
+    const Star = () => <svg className="lucide lucide-star" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>;
+    const Zap = () => <svg className="lucide lucide-zap" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>;
+    const TrendingUp = () => <svg className="lucide lucide-trending-up" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>;
+    const Undo2 = () => <svg className="lucide lucide-undo-2" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5v0a5.5 5.5 0 0 1-5.5 5.5H11"/></svg>;
+    const Lock = () => <svg className="lucide lucide-lock" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>;
+
+    const DEFAULT_QUESTS = [
+      { title: 'Drink 2L water', skill: 'wellness', difficulty: 'easy', frequency: 'daily', isDefault: true },
+      { title: 'Gym workout / BJJ', skill: 'fitness', difficulty: 'hard', frequency: 'daily', isDefault: true },
+      { title: 'Read a chapter and write key points', skill: 'learning', difficulty: 'medium', frequency: 'daily', isDefault: true },
+      { title: 'Have all supplements', skill: 'wellness', difficulty: 'easy', frequency: 'daily', isDefault: true },
+      { title: 'Plan tomorrow\\'s tasks', skill: 'productivity', difficulty: 'easy', frequency: 'daily', isDefault: true }
+    ];
+
+    function QuestLife() {
+      const [player, setPlayer] = useState({ name: 'Novice', level: 1, xp: 0, xpToNext: 100, totalXP: 0, streak: 0, lastActive: null });
+      const [quests, setQuests] = useState([]);
+      const [skills, setSkills] = useState({ fitness: { level: 1, progress: 0 }, learning: { level: 1, progress: 0 }, productivity: { level: 1, progress: 0 }, creativity: { level: 1, progress: 0 }, social: { level: 1, progress: 0 }, wellness: { level: 1, progress: 0 } });
+      const [achievements, setAchievements] = useState([]);
+      const [questChains, setQuestChains] = useState({ hydration: { progress: 0 }, planner: { progress: 0 }, supplement: { progress: 0 }, reader: { progress: 0 }, athlete: { progress: 0 } });
+      const [recentCompletions, setRecentCompletions] = useState([]);
+      const [showNewQuest, setShowNewQuest] = useState(false);
+      const [showChains, setShowChains] = useState(false);
+      const [newQuest, setNewQuest] = useState({ title: '', skill: 'productivity', difficulty: 'medium', frequency: 'daily' });
+      const [dailyChallenges, setDailyChallenges] = useState([
+        { id: 'dc1', text: 'Complete 3 quests today', xp: 75, type: 'auto', completed: false },
+        { id: 'dc2', text: 'Complete all daily quests', xp: 100, type: 'auto', completed: false },
+        { id: 'dc3', text: 'Text or call a friend/family', xp: 50, type: 'manual', completed: false }
+      ]);
+      const [weeklyChallenges, setWeeklyChallenges] = useState([
+        { id: 'wc1', text: 'Maintain 7-day streak', xp: 400, type: 'auto', completed: false },
+        { id: 'wc2', text: 'Complete 20 quests this week', xp: 300, type: 'auto', completed: false },
+        { id: 'wc3', text: 'Do a weekly reflection', xp: 200, type: 'manual', completed: false }
+      ]);
+      const [showLevelUp, setShowLevelUp] = useState(false);
+      const [levelUpData, setLevelUpData] = useState({ level: 1, title: 'Novice' });
+      const [showSkillUp, setShowSkillUp] = useState(false);
+      const [skillUpData, setSkillUpData] = useState({ skill: '', level: 1, unlocks: [], nextUnlock: '' });
+
+      const difficultyXP = { easy: 20, medium: 50, hard: 100 };
+      const skillColors = { fitness: 'bg-red-500', learning: 'bg-blue-500', productivity: 'bg-green-500', creativity: 'bg-purple-500', social: 'bg-yellow-500', wellness: 'bg-pink-500' };
+      const chains = [
+        { id: 'hydration', name: 'Hydration Hero', quests: ['Drink water 7 days', 'Drink water 30 days', 'Drink water 100 days', 'Drink water 365 days'], targets: [7, 30, 100, 365], levelReq: 1 },
+        { id: 'planner', name: 'Master Planner', quests: ['Plan 7 days', 'Plan 30 days', 'Plan 100 days', 'Plan 365 days'], targets: [7, 30, 100, 365], levelReq: 1 },
+        { id: 'supplement', name: 'Health Optimizer', quests: ['Supplements 7 days', 'Supplements 30 days', 'Supplements 100 days', 'Supplements 365 days'], targets: [7, 30, 100, 365], levelReq: 1 },
+        { id: 'reader', name: 'Bookworm', quests: ['Read 10 chapters', 'Read 50 chapters', 'Read 150 chapters', 'Read 365 chapters'], targets: [10, 50, 150, 365], levelReq: 3 },
+        { id: 'athlete', name: 'Iron Body', quests: ['Train 10 times', 'Train 50 times', 'Train 150 times', 'Train 365 times'], targets: [10, 50, 150, 365], levelReq: 7 }
+      ];
+
+      const getSkillXPForLevel = (level) => Math.floor(5 * Math.pow(1.5, level - 1));
+      const getTitleForLevel = (level) => level >= 20 ? 'Legend' : level >= 15 ? 'Champion' : level >= 10 ? 'Hero' : level >= 7 ? 'Warrior' : level >= 5 ? 'Adventurer' : level >= 3 ? 'Apprentice' : 'Novice';
+
+      useEffect(() => {
+        const s = localStorage.getItem('ql_player');
+        if (s) { const p = JSON.parse(s); if (p.stats) delete p.stats; setPlayer(p); }
+        const q = localStorage.getItem('ql_quests');
+        if (q && JSON.parse(q).length) setQuests(JSON.parse(q)); else { const d = DEFAULT_QUESTS.map((qu, i) => ({ ...qu, id: Date.now() + i, completedToday: false, lastCompleted: null, totalCompletions: 0 })); setQuests(d); localStorage.setItem('ql_quests', JSON.stringify(d)); }
+        const sk = localStorage.getItem('ql_skills');
+        if (sk) { const parsed = JSON.parse(sk); if (parsed.fitness && typeof parsed.fitness === 'object' && parsed.fitness.level) setSkills(parsed); }
+        const a = localStorage.getItem('ql_achievements');
+        if (a) setAchievements(JSON.parse(a));
+        const c = localStorage.getItem('ql_chains');
+        if (c) setQuestChains(JSON.parse(c));
+        const r = localStorage.getItem('ql_recent');
+        if (r) setRecentCompletions(JSON.parse(r));
+        const dc = localStorage.getItem('ql_daily_challenges');
+        if (dc) setDailyChallenges(JSON.parse(dc));
+        const wc = localStorage.getItem('ql_weekly_challenges');
+        if (wc) setWeeklyChallenges(JSON.parse(wc));
+      }, []);
+
+      useEffect(() => {
+        if (quests.length) {
+          localStorage.setItem('ql_player', JSON.stringify(player));
+          localStorage.setItem('ql_quests', JSON.stringify(quests));
+          localStorage.setItem('ql_skills', JSON.stringify(skills));
+          localStorage.setItem('ql_achievements', JSON.stringify(achievements));
+          localStorage.setItem('ql_chains', JSON.stringify(questChains));
+          localStorage.setItem('ql_recent', JSON.stringify(recentCompletions));
+          localStorage.setItem('ql_daily_challenges', JSON.stringify(dailyChallenges));
+          localStorage.setItem('ql_weekly_challenges', JSON.stringify(weeklyChallenges));
+        }
+      }, [player, quests, skills, achievements, questChains, recentCompletions, dailyChallenges, weeklyChallenges]);
+
+      const completeQuest = (qid) => {
+        const q = quests.find(qu => qu.id === qid);
+        if (!q || q.completedToday || player.level < ({ easy: 1, medium: 3, hard: 7 }[q.difficulty])) return;
+        const xpG = difficultyXP[q.difficulty];
+        let nXP = player.xp + xpG, nLvl = player.level, xpN = player.xpToNext;
+        const oldLevel = player.level;
+        while (nXP >= xpN) { nXP -= xpN; nLvl++; xpN = Math.floor(100 * Math.pow(1.5, nLvl - 1)); }
+        const now = new Date(), dd = player.lastActive ? Math.floor((now - new Date(player.lastActive)) / 86400000) : 0;
+        const nStr = !player.lastActive || dd === 0 ? player.streak : dd === 1 ? player.streak + 1 : 1;
+        setPlayer({ ...player, xp: nXP, level: nLvl, xpToNext: xpN, totalXP: player.totalXP + xpG, streak: nStr, lastActive: now.toISOString() });
+        
+        if (nLvl > oldLevel) { setLevelUpData({ level: nLvl, title: getTitleForLevel(nLvl) }); setShowLevelUp(true); setTimeout(() => setShowLevelUp(false), 3000); }
+        
+        setRecentCompletions([{ questId: qid, questTitle: q.title, timestamp: now.toISOString(), xpGained: xpG }, ...recentCompletions].slice(0, 10));
+        setQuests(quests.map(qu => qu.id === qid ? { ...qu, completedToday: true, lastCompleted: now.toISOString(), totalCompletions: qu.totalCompletions + 1 } : qu));
+        const uSk = { ...skills }, cSk = uSk[q.skill]; 
+        const oldSkillLevel = cSk.level;
+        cSk.progress += 1; 
+        const xpNd = getSkillXPForLevel(cSk.level); 
+        if (cSk.progress >= xpNd) { 
+          cSk.progress -= xpNd; 
+          cSk.level += 1;
+          const unlocks = [];
+          let nextUnlock = '';
+          if (cSk.level === 5 || cSk.level === 10 || cSk.level === 15) {
+            const newChallenges = [...dailyChallenges, ...weeklyChallenges].filter(ch => ch.skill === q.skill && ch.skillReq === cSk.level);
+            if (newChallenges.length > 0) unlocks.push(\`\${newChallenges.length} new challenge\${newChallenges.length > 1 ? 's' : ''}\`);
+          }
+          if (cSk.level < 5) nextUnlock = \`\${5 - cSk.level} levels until new challenges\`; else if (cSk.level < 10) nextUnlock = \`\${10 - cSk.level} levels until new challenges\`; else if (cSk.level < 15) nextUnlock = \`\${15 - cSk.level} levels until new challenges\`; else nextUnlock = 'Max tier unlocked!';
+          setSkillUpData({ skill: q.skill, level: cSk.level, unlocks, nextUnlock }); setShowSkillUp(true); setTimeout(() => setShowSkillUp(false), 3000);
+        } 
+        setSkills(uSk);
+        const nCh = { ...questChains }; if (q.title.includes('water')) nCh.hydration.progress += 1; if (q.title.includes('Plan')) nCh.planner.progress += 1; if (q.title.includes('supplements')) nCh.supplement.progress += 1; if (q.skill === 'learning') nCh.reader.progress += 1; if (q.skill === 'fitness') nCh.athlete.progress += 1; setQuestChains(nCh);
+        const nA = [...achievements]; if (nLvl === 5 && !nA.includes('level5')) nA.push('level5'); if (nStr === 7 && !nA.includes('week_streak')) nA.push('week_streak'); if (q.totalCompletions + 1 === 10 && !nA.includes('quest10')) nA.push('quest10'); setAchievements(nA);
+      };
+
+      const completeChallenge = (challengeId, isDaily) => {
+        if (isDaily) { setDailyChallenges(dailyChallenges.map(c => c.id === challengeId ? { ...c, completed: true } : c)); const ch = dailyChallenges.find(c => c.id === challengeId); if (ch) setPlayer({ ...player, xp: player.xp + ch.xp, totalXP: player.totalXP + ch.xp }); }
+        else { setWeeklyChallenges(weeklyChallenges.map(c => c.id === challengeId ? { ...c, completed: true } : c)); const ch = weeklyChallenges.find(c => c.id === challengeId); if (ch) setPlayer({ ...player, xp: player.xp + ch.xp, totalXP: player.totalXP + ch.xp }); }
+      };
+
+      const undoCompletion = () => {
+        if (!recentCompletions.length) return;
+        const l = recentCompletions[0], q = quests.find(qu => qu.id === l.questId);
+        if (!q) return;
+        setPlayer({ ...player, xp: Math.max(0, player.xp - l.xpGained), totalXP: Math.max(0, player.totalXP - l.xpGained) });
+        setQuests(quests.map(qu => qu.id === l.questId ? { ...qu, completedToday: false, totalCompletions: Math.max(0, qu.totalCompletions - 1) } : qu));
+        const uSk = { ...skills }, cSk = uSk[q.skill]; cSk.progress = Math.max(0, cSk.progress - 1); if (cSk.progress < 0 && cSk.level > 1) { cSk.level -= 1; cSk.progress = getSkillXPForLevel(cSk.level) - 1; } setSkills(uSk);
+        setRecentCompletions(recentCompletions.slice(1));
+      };
+
+      useEffect(() => { const i = setInterval(() => { const n = new Date(); setQuests(q => q.map(qu => qu.frequency === 'daily' && qu.lastCompleted && (n - new Date(qu.lastCompleted)) / 3600000 >= 24 ? { ...qu, completedToday: false } : qu)); }, 60000); return () => clearInterval(i); }, []);
+
+      return (
+        <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white p-4">
+          {showLevelUp && <div className="fixed inset-0 flex items-center justify-center z-50 pointer-events-none"><div className="bg-gradient-to-r from-purple-600 to-pink-600 rounded-2xl p-8 shadow-2xl animate-bounce"><h2 className="text-4xl font-bold text-center mb-2">LEVEL UP!</h2><p className="text-2xl text-center">Level {levelUpData.level}</p><p className="text-xl text-center text-purple-200">{levelUpData.title}</p></div></div>}
+          {showSkillUp && <div className="fixed inset-0 flex items-center justify-center z-50 pointer-events-none"><div className="bg-gradient-to-r from-blue-600 to-cyan-600 rounded-2xl p-8 shadow-2xl animate-pulse"><h2 className="text-3xl font-bold text-center mb-2 capitalize">{skillUpData.skill} Level {skillUpData.level}!</h2><div className="text-center">{skillUpData.unlocks.length > 0 ? <><p className="text-lg text-blue-100 mb-2">🔓 Unlocked:</p>{skillUpData.unlocks.map((unlock, i) => <p key={i} className="text-md text-white mb-2">{unlock}</p>)}</> : <p className="text-md text-blue-100 mb-2">Keep going!</p>}<p className="text-sm text-blue-200 mt-2">{skillUpData.nextUnlock}</p></div></div></div>}
+          <div className="max-w-4xl mx-auto">
+            <div className="bg-slate-800/50 backdrop-blur rounded-2xl p-6 mb-4 border border-purple-500/20">
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <div className="flex items-center gap-2 mb-1">
+                    {achievements.includes('level5') && <span className="text-xl" title="Rising Hero">📚</span>}
+                    {achievements.includes('week_streak') && <span className="text-xl" title="Week Warrior">🔥</span>}
+                    {achievements.includes('quest10') && <span className="text-xl" title="Quest Master">⚔️</span>}
+                    {player.totalXP >= 1000 && <span className="text-xl" title="XP Collector">💎</span>}
+                    {player.level >= 10 && <span className="text-xl" title="Veteran">👑</span>}
+                  </div>
+                  <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">{getTitleForLevel(player.level)}</h1>
+                  <p className="text-slate-400">Level {player.level}</p>
+                </div>
+                <div className="flex gap-4">
+                  <div className="text-center"><div className="flex items-center gap-1 text-yellow-400"><Flame /><span className="text-2xl font-bold">{player.streak}</span></div><p className="text-xs text-slate-400">Streak</p></div>
+                  <div className="text-center"><div className="flex items-center gap-1 text-purple-400"><Star /><span className="text-2xl font-bold">{player.totalXP}</span></div><p className="text-xs text-slate-400">Total XP</p></div>
+                </div>
+              </div>
+              <div className="mb-2"><div className="flex justify-between text-sm mb-1"><span className="text-slate-400">XP</span><span className="text-purple-400">{player.xp} / {player.xpToNext}</span></div><div className="h-4 bg-slate-700 rounded-full overflow-hidden"><div className="h-full bg-gradient-to-r from-purple-500 to-pink-500 transition-all duration-500" style={{ width: \`\${(player.xp / player.xpToNext) * 100}%\` }} /></div></div>
+            </div>
+
+            <div className="bg-slate-800/50 backdrop-blur rounded-2xl p-4 mb-4 border border-yellow-500/20">
+              <h3 className="font-bold flex items-center gap-2 mb-3"><Zap className="w-5 h-5" />Challenges</h3>
+              {player.level >= 5 ? <>
+                <div className="mb-4"><h4 className="text-sm font-semibold text-yellow-400 mb-2">Daily Challenges</h4><div className="space-y-2">{dailyChallenges.filter(ch => !ch.skillReq || (skills[ch.skill]?.level || 0) >= ch.skillReq).map(ch => <div key={ch.id} className={\`bg-slate-700/50 rounded-lg p-2 flex items-center justify-between \${ch.completed ? 'opacity-50' : ''}\`}><div className="flex-1"><p className="text-sm">{ch.text}</p><p className="text-xs text-slate-400">+{ch.xp} XP</p></div>{ch.type === 'manual' && !ch.completed && <button onClick={() => completeChallenge(ch.id, true)} className="bg-green-600 hover:bg-green-700 rounded px-3 py-1 text-xs transition">Complete</button>}{ch.completed && <span className="text-green-400">✓</span>}</div>)}</div></div>
+                <div><h4 className="text-sm font-semibold text-purple-400 mb-2">Weekly Challenges</h4><div className="space-y-2">{weeklyChallenges.filter(ch => !ch.skillReq || (skills[ch.skill]?.level || 0) >= ch.skillReq).map(ch => <div key={ch.id} className={\`bg-slate-700/50 rounded-lg p-2 flex items-center justify-between \${ch.completed ? 'opacity-50' : ''}\`}><div className="flex-1"><p className="text-sm">{ch.text}</p><p className="text-xs text-slate-400">+{ch.xp} XP</p></div>{ch.type === 'manual' && !ch.completed && <button onClick={() => completeChallenge(ch.id, false)} className="bg-green-600 hover:bg-green-700 rounded px-3 py-1 text-xs transition">Complete</button>}{ch.completed && <span className="text-green-400">✓</span>}</div>)}</div></div>
+              </> : <div className="flex items-center justify-center gap-3 py-6 opacity-50"><Lock className="w-6 h-6" /><div><p className="text-sm font-semibold text-slate-300">Locked</p><p className="text-xs text-slate-400">Reach level 5 to unlock challenges</p></div></div>}
+            </div>
+
+            <div className="bg-slate-800/50 backdrop-blur rounded-2xl p-6 mb-4 border border-purple-500/20">
+              <div className="flex items-center justify-between mb-4"><h2 className="text-2xl font-bold flex items-center gap-2"><Target />Quests</h2><div className="flex gap-2">{recentCompletions.length > 0
